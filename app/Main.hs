@@ -23,9 +23,9 @@ main = playIO
 
 initWorld :: World
 initWorld = World {
-    trollPos   = (0, 800)
-  , vebjornPos = (500, 0)
-  , nikolaiPos = (-500, 0)
+    trollPos   = (0, 10000)
+  , vebjornPos = (500, 10000)
+  , nikolaiPos = (-500, 10000)
 }
 
 paintWorld :: World -> IO Picture
@@ -42,12 +42,25 @@ picture t = return
   $ Text t -- text to display
 
 inputEvent :: Event -> World -> IO World
-inputEvent (EventKey (SpecialKey KeySpace) Down modifiers (x,y)) world = return world
---inputEvent (EventKey (Char 't') Down modifiers (x,y)) world = return "TROLL"
+--inputEvent (EventKey (SpecialKey KeySpace) Down modifiers (x,y)) world = return world
+inputEvent (EventKey (Char 't') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos niPos (0, 800))
+inputEvent (EventKey (Char 'n') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (-500, 0) trPos)
+inputEvent (EventKey (Char 'v') Down modifiers (x,y)) (World vePos niPos trPos) = return (World (500, 0) niPos trPos)
+inputEvent (EventKey (SpecialKey KeyUp) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (0, 10) vePos) niPos trPos)
+inputEvent (EventKey (SpecialKey KeyDown) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (0, -10) vePos) niPos trPos)
+inputEvent (EventKey (SpecialKey KeyLeft) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (-10, 0) vePos) niPos trPos)
+inputEvent (EventKey (SpecialKey KeyRight) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (10, 0) vePos) niPos trPos)
+inputEvent (EventKey (Char 'w') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (0, 10) niPos) trPos)
+inputEvent (EventKey (Char 's') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (0, -10) niPos) trPos)
+inputEvent (EventKey (Char 'a') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (-10, 0) niPos) trPos)
+inputEvent (EventKey (Char 'd') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (10, 0) niPos) trPos)
 inputEvent _ world = return world
 
 stepWorld :: Float -> World -> IO World
-stepWorld step world = return world
+stepWorld step (World vePos niPos trPos) = return (World vePos niPos (add (0, -2) trPos))
+
+add :: (Float, Float) -> (Float, Float) -> (Float, Float)
+add (x,y) (a, b) = (x + a, y + b)
 
 nikolai :: IO Picture
 nikolai = loadBMP "img/nikolai.bmp"
