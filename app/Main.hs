@@ -7,34 +7,48 @@ import Graphics.Gloss.Interface.IO.Game
 
 import System.Random
 
+type Pos = (Float, Float)
+
 data World = World {
-    vebjornPos :: (Float, Float)
-  , nikolaiPos :: (Float, Float)
-  , trollPos  :: (Float, Float)
+    vebjornPos :: Pos
+  , nikolaiPos :: Pos
+  , trollPos  :: Pos
+  , trollDst :: Pos
 } deriving (Show)
 
 main :: IO ()
-main = playIO
-  FullScreen -- Display
-  yellow -- Color
-  10 -- FPS
-  initWorld -- initial world
-  paintWorld -- world transformation function
-  inputEvent -- (Event -> World -> IO world)
-  stepWorld -- (Float -> world -> IO world)
+main = do
+  trDst' <- rndDst
+  playIO
+    FullScreen -- Display
+    yellow -- Color
+    10 -- FPS
+    (initWorld trDst') -- initial world
+    paintWorld -- world transformation function
+    inputEvent -- (Event -> World -> IO world)
+    stepWorld -- (Float -> world -> IO world)
 
-initWorld :: World
-initWorld = World {
+rndDst :: IO Pos
+rndDst = do
+  rndTrollDstX <- randomIO :: IO Float
+  rndTrollDstY <- randomIO :: IO Float
+  return ((rndTrollDstX - 0.5) * 1000, (rndTrollDstY - 0.5) * 1000)
+
+initWorld :: Pos -> World
+initWorld dst = World {
     trollPos   = (0, 10000)
   , vebjornPos = (500, 10000)
   , nikolaiPos = (-500, 10000)
+  , trollDst = dst
 }
 
 paintWorld :: World -> IO Picture
-paintWorld (World vePos niPos trPos) = fmap Pictures $ sequence $
-  [ fmap ((Scale 0.5 0.5) . (Translate (fst trPos) (snd trPos))) troll
-  , fmap ((Scale 0.5 0.5) . (Translate (fst vePos) (snd vePos))) vebjorn
-  , fmap ((Scale 0.5 0.5) . (Translate (fst niPos) (snd niPos))) nikolai ]
+paintWorld (World vePos niPos trPos trDst) = do
+  print $ "printing troll at " ++ show trPos ++ " towards " ++ show trDst
+  fmap Pictures $ sequence $
+    [ fmap ((Scale 0.5 0.5) . (Translate (fst trPos) (snd trPos))) troll
+    , fmap ((Scale 0.5 0.5) . (Translate (fst vePos) (snd vePos))) vebjorn
+    , fmap ((Scale 0.5 0.5) . (Translate (fst niPos) (snd niPos))) nikolai ]
 
 
 picture :: String -> IO Picture
@@ -45,23 +59,40 @@ picture t = return
 
 inputEvent :: Event -> World -> IO World
 --inputEvent (EventKey (SpecialKey KeySpace) Down modifiers (x,y)) world = return world
-inputEvent (EventKey (Char 't') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos niPos (0, 800))
-inputEvent (EventKey (Char 'n') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (-500, 0) trPos)
-inputEvent (EventKey (Char 'v') Down modifiers (x,y)) (World vePos niPos trPos) = return (World (500, 0) niPos trPos)
-inputEvent (EventKey (SpecialKey KeyUp) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (0, 10) vePos) niPos trPos)
-inputEvent (EventKey (SpecialKey KeyDown) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (0, -10) vePos) niPos trPos)
-inputEvent (EventKey (SpecialKey KeyLeft) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (-10, 0) vePos) niPos trPos)
-inputEvent (EventKey (SpecialKey KeyRight) Down modifiers (x,y)) (World vePos niPos trPos) = return (World (add (10, 0) vePos) niPos trPos)
-inputEvent (EventKey (Char 'w') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (0, 10) niPos) trPos)
-inputEvent (EventKey (Char 's') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (0, -10) niPos) trPos)
-inputEvent (EventKey (Char 'a') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (-10, 0) niPos) trPos)
-inputEvent (EventKey (Char 'd') Down modifiers (x,y)) (World vePos niPos trPos) = return (World vePos (add (10, 0) niPos) trPos)
+inputEvent (EventKey (Char 't') Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World vePos niPos (0, 800) trDst)
+inputEvent (EventKey (Char 'n') Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World vePos (-500, 0) trPos trDst)
+inputEvent (EventKey (Char 'v') Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World (500, 0) niPos trPos trDst)
+inputEvent (EventKey (SpecialKey KeyUp) Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World (add (0, 20) vePos) niPos trPos trDst)
+inputEvent (EventKey (SpecialKey KeyDown) Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World (add (0, -20) vePos) niPos trPos trDst)
+inputEvent (EventKey (SpecialKey KeyLeft) Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World (add (-20, 0) vePos) niPos trPos trDst)
+inputEvent (EventKey (SpecialKey KeyRight) Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World (add (20, 0) vePos) niPos trPos trDst)
+inputEvent (EventKey (Char 'w') Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World vePos (add (0, 20) niPos) trPos trDst)
+inputEvent (EventKey (Char 's') Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World vePos (add (0, -20) niPos) trPos trDst)
+inputEvent (EventKey (Char 'a') Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World vePos (add (-20, 0) niPos) trPos trDst)
+inputEvent (EventKey (Char 'd') Down modifiers (x,y)) (World vePos niPos trPos trDst) = return (World vePos (add (20, 0) niPos) trPos trDst)
 inputEvent _ world = return world
 
 stepWorld :: Float -> World -> IO World
-stepWorld step (World vePos niPos trPos) = return (World vePos niPos (add (0, -2) trPos))
+stepWorld step (World vePos niPos trPos trDst) = do
+  if trPos &= trDst then do
+    newTrDst <- rndDst
+    return (World vePos niPos trPos newTrDst)
+  else
+    return (World vePos niPos (nextPos step trPos trDst) trDst)
 
-add :: (Float, Float) -> (Float, Float) -> (Float, Float)
+nextPos :: Float -> Pos -> Pos -> Pos
+nextPos step currPos@(x',y') destPos@(x,y)
+  | x > x', y > y' = (x' + trollSpeed, y' + trollSpeed)
+  | x > x', y <= y' = (x' + trollSpeed, y' - trollSpeed)
+  | x <= x', y > y' = (x' - trollSpeed, y' + trollSpeed)
+  | x <= x', y <= y' = (x' - trollSpeed, y' - trollSpeed)
+    where trollSpeed = 2
+
+-- fuzzy close match
+(&=) :: Pos -> Pos -> Bool
+(&=) (x1,y1) (x2,y2) = abs (x2 - x1) < 10 && abs (y2 - y1) < 10
+
+add :: Pos -> Pos -> Pos
 add (x,y) (a, b) = (x + a, y + b)
 
 nikolai :: IO Picture
@@ -71,5 +102,5 @@ vebjorn :: IO Picture
 vebjorn = loadBMP "img/vebjorn.bmp"
 
 troll :: IO Picture
-troll = return $ Text "TROLL"
+troll = loadBMP "img/troll.bmp"
 
