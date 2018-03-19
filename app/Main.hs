@@ -5,6 +5,8 @@ import Control.Monad
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 
+import System.Random
+
 data World = World {
     vebjornPos :: (Float, Float)
   , nikolaiPos :: (Float, Float)
@@ -70,3 +72,4 @@ vebjorn = loadBMP "img/vebjorn.bmp"
 
 troll :: IO Picture
 troll = return $ Text "TROLL"
+

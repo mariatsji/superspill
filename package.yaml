@@ -36,6 +36,7 @@ executables:
     dependencies:
     - superspill
     - gloss
+    - random
 
 tests:
   superspill-test:
