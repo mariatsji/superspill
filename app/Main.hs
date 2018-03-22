@@ -1,5 +1,8 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Main where
 
+import           Control.Lens
 import           Control.Monad
 
 import           Graphics.Gloss
@@ -10,13 +13,15 @@ import           System.Random
 type Pos = (Float, Float)
 
 data World = World
-  { vebjornPos :: Pos
-  , nikolaiPos :: Pos
-  , trollPos   :: Pos
-  , trollDst   :: Pos
-  , trollImg   :: Int
-  , stange     :: Int
+  { _vebjornPos :: Pos
+  , _nikolaiPos :: Pos
+  , _trollPos   :: Pos
+  , _trollDst   :: Pos
+  , _trollImg   :: Int
+  , _stange     :: Int
   } deriving (Show)
+
+makeLenses ''World
 
 fps :: Int
 fps = 10
@@ -42,12 +47,12 @@ rndDst = do
 initWorld :: Pos -> World
 initWorld dst =
   World
-  { trollPos = (0, 3000)
-  , vebjornPos = (500, 10000)
-  , nikolaiPos = (-500, 10000)
-  , trollDst = dst
-  , trollImg = 1
-  , stange = 0
+  { _trollPos = (0, 3000)
+  , _vebjornPos = (500, 10000)
+  , _nikolaiPos = (-500, 10000)
+  , _trollDst = dst
+  , _trollImg = 1
+  , _stange = 0
   }
 
 paintWorld :: World -> IO Picture
@@ -74,10 +79,10 @@ paintWorld (World vePos niPos trPos trDst trImg stange)
 
 inputEvent :: Event -> World -> IO World
 --inputEvent (EventKey (SpecialKey KeySpace) Down modifiers (x,y)) world = return world
-inputEvent (EventKey (Char 't') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
+inputEvent (EventKey (Char 't') Down _ _) (World vePos niPos trPos trDst trImg stange) =
   return (World vePos niPos (0, 800) trDst 1 stange)
-inputEvent (EventKey (Char 'n') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World vePos (-500, 0) trPos trDst trImg stange)
+inputEvent (EventKey (Char 'n') Down _ _) world =
+  return $ (nikolaiPos .~ (-500, 0)) world
 inputEvent (EventKey (Char 'v') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
   return (World (500, 0) niPos trPos trDst trImg stange)
 inputEvent (EventKey (SpecialKey KeyUp) Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =

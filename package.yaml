@@ -37,6 +37,7 @@ executables:
     - superspill
     - gloss
     - random
+    - lens
 
 tests:
   superspill-test:
