@@ -116,7 +116,7 @@ stepWorld step (World vePos niPos trPos trDst trImg stange) = do
 (&=) (x1, y1) (x2, y2) = abs (x2 - x1) < 10 && abs (y2 - y1) < 10
 
 nextPos :: Float -> Pos -> Pos -> Pos
-nextPos step currPos@(x', y') destPos@(x, y)
+nextPos step (x', y') (x, y)
   | x > x'
   , y > y' = (x' + trollSpeed, y' + trollSpeed)
   | x > x'
