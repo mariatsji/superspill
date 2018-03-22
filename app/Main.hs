@@ -81,30 +81,19 @@ inputEvent :: Event -> World -> IO World
 --inputEvent (EventKey (SpecialKey KeySpace) Down modifiers (x,y)) world = return world
 inputEvent (EventKey (Char 't') Down _ _) (World vePos niPos trPos trDst trImg stange) =
   return (World vePos niPos (0, 800) trDst 1 stange)
-inputEvent (EventKey (Char 'n') Down _ _) world =
-  return $ (nikolaiPos .~ (-500, 0)) world
-inputEvent (EventKey (Char 'v') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World (500, 0) niPos trPos trDst trImg stange)
-inputEvent (EventKey (SpecialKey KeyUp) Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World (add (0, 25) vePos) niPos trPos trDst trImg stange)
-inputEvent (EventKey (SpecialKey KeyDown) Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World (add (0, -25) vePos) niPos trPos trDst trImg stange)
-inputEvent (EventKey (SpecialKey KeyLeft) Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World (add (-25, 0) vePos) niPos trPos trDst trImg stange)
-inputEvent (EventKey (SpecialKey KeyRight) Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World (add (25, 0) vePos) niPos trPos trDst trImg stange)
-inputEvent (EventKey (Char 'w') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World vePos (add (0, 25) niPos) trPos trDst trImg stange)
-inputEvent (EventKey (Char 's') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World vePos (add (0, -25) niPos) trPos trDst trImg stange)
-inputEvent (EventKey (Char 'a') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World vePos (add (-25, 0) niPos) trPos trDst trImg stange)
-inputEvent (EventKey (Char 'd') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (World vePos (add (25, 0) niPos) trPos trDst trImg stange)
-inputEvent (EventKey (SpecialKey KeySpace) Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
+inputEvent (EventKey (Char 'n') Down _ _) world = return $ (nikolaiPos .~ (-500, 0)) world
+inputEvent (EventKey (Char 'v') Down _ _) world = return $ (vebjornPos .~ (500, 0)) world
+inputEvent (EventKey (SpecialKey KeyUp) Down _ _) world = return $ (vebjornPos %~ (add (0, 25))) world
+inputEvent (EventKey (SpecialKey KeyDown) Down _ _) world = return $ (vebjornPos %~ (add (0, -25))) world
+inputEvent (EventKey (SpecialKey KeyLeft) Down _ _) world = return $ (vebjornPos %~ (add (-25, 0))) world
+inputEvent (EventKey (SpecialKey KeyRight) Down _ _) world = return $ (vebjornPos %~ (add (25, 0))) world
+inputEvent (EventKey (Char 'w') Down _ _) world = return $ (nikolaiPos %~ (add (0, 25))) world
+inputEvent (EventKey (Char 's') Down _ _) world = return $ (nikolaiPos %~ (add (0, -25))) world
+inputEvent (EventKey (Char 'a') Down _ _) world = return $ (nikolaiPos %~ (add (-25, 0))) world
+inputEvent (EventKey (Char 'd') Down _ _) world = return $ (nikolaiPos %~ (add (25, 0))) world
+inputEvent (EventKey (SpecialKey KeySpace) Down _ _) (World vePos niPos trPos trDst trImg stange) =
   return (World vePos niPos trPos trDst 50 10)
-inputEvent (EventKey (Char 'p') Down modifiers (x, y)) (World vePos niPos trPos trDst trImg stange) =
-  return (initWorld (0, 3000))
+inputEvent (EventKey (Char 'p') Down _ _) _ = return (initWorld (0, 3000))
 inputEvent _ world = return world
 
 stepWorld :: Float -> World -> IO World
